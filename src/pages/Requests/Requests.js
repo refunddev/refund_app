@@ -25,39 +25,40 @@ class Requests extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      columns: [{
-        dataIndex: '102',
-        title: 'МТ 102',
-        width: 50,
-        onCell: record => {
-          return {
-            onClick: () => {
-              console.log(record);
-            },
-          };
-        },
-        render: () => (
-          <Button key={'102'}>
-            <Icon type="database" theme="outlined"/>
-          </Button>
-        ),
-      }, {
-        dataIndex: 'xml',
-        title: 'XML',
-        width: 50,
-        onCell: record => {
-          return {
-            onClick: () => {
-              console.log(record);
-            },
-          };
-        },
-        render: () => (
-          <Button key={'xml'}>
-            <Icon type="database" theme="outlined"/>
-          </Button>
-        ),
-      }],
+      columns: [
+        {
+          dataIndex: '102',
+          title: 'МТ 102',
+          width: 50,
+          onCell: record => {
+            return {
+              onClick: () => {
+                console.log(record);
+              },
+            };
+          },
+          render: () => (
+            <Button key={'102'}>
+              <Icon type="database" theme="outlined"/>
+            </Button>
+          ),
+        }, {
+          dataIndex: 'xml',
+          title: 'XML',
+          width: 50,
+          onCell: record => {
+            return {
+              onClick: () => {
+                console.log(record);
+              },
+            };
+          },
+          render: () => (
+            <Button key={'xml'}>
+              <Icon type="database" theme="outlined"/>
+            </Button>
+          ),
+        }],
       searchercont: 0,
       tablecont: 24,
       isSearcher: false,
@@ -70,16 +71,25 @@ class Requests extends Component {
       },
       ShowModal: false,
       searchButton: false,
-      serverFileList: [{
-        id: '1',
-        filename: '1xxx.png',
-      }, {
-        id: '2',
-        filename: '2yyy.png',
-      }, {
-        id: '3',
-        filename: '3zzz.png',
-      }],
+      serverFileList: [
+        {
+          id: '1',
+          filename: '1xxx.png',
+        }, {
+          id: '2',
+          filename: '2yyy.png',
+        }, {
+          id: '3',
+          filename: '3zzz.png',
+        }],
+      pagingConfig: {
+        'start': 0,
+        'length': 10,
+        'src': {
+          'searched': false,
+          'data': {},
+        },
+      },
     };
   }
 
@@ -88,30 +98,73 @@ class Requests extends Component {
     dispatch({
       type: 'universal2/clear',
       payload: {
-        table: 'requests',
+        table: 'getApplicationPage',
       },
     });
   }
 
-  componentDidMount() {
+  loadMainGridData = () => {
+
     const { dispatch } = this.props;
-    dispatch({
-      type: 'universal2/columns',
-      payload: {
-        table: 'requests',
-      },
-    });
+
     dispatch({
       type: 'universal2/data',
       payload: {
-        table: 'requests',
+        table: 'getApplicationPage',
+        ...this.state.pagingConfig,
       },
     });
+  };
+
+  clearFilter = () => {
+
+    this.setState({
+      pagingConfig: {
+        'start': 0,
+        'length': 10,
+        'src': {
+          'searched': false,
+          'data': {},
+        },
+      },
+    }, () => {
+      this.loadMainGridData();
+    });
+  };
+
+  setFilter = (filters) => {
+
+    this.setState({
+      pagingConfig: {
+        'start': 0,
+        'length': 10,
+        'src': {
+          'searched': true,
+          'data': filters,
+        },
+      },
+    }, () => {
+      this.loadMainGridData();
+    });
+
+
+  };
+
+  componentDidMount() {
+    const { dispatch } = this.props;
+    /* dispatch({
+       type: 'universal2/columns',
+       payload: {
+         table: 'requests',
+       },
+     });*/
+
+    this.loadMainGridData();
 
     this.setState({
       filterForm: [
         {
-          name: 'number',
+          name: 'appNumber',
           label: formatMessage({ id: 'menu.filter.numberrequest' }),
           type: 'text',
         },
@@ -121,17 +174,17 @@ class Requests extends Component {
           type: 'text',
         },
         {
-          name: 'payNumber',
+          name: 'payOrderNum',
           label: formatMessage({ id: 'menu.filter.paymentnumber' }),
           type: 'text',
         },
         {
-          name: 'RefundComeDate',
+          name: 'payOrderDate',
           label: formatMessage({ id: 'menu.filter.payment.date' }),
           type: 'betweenDate',
         },
         {
-          name: 'RefundFundDate',
+          name: 'receiptAppdateToFsms',
           label: formatMessage({ id: 'menu.filter.refundadd' }),
           type: 'betweenDate',
         },
@@ -150,9 +203,15 @@ class Requests extends Component {
   onShowSizeChange = (current, pageSize) => {
     const max = current * pageSize;
     const min = max - pageSize;
-    console.log(this.state.DataTable);
-    this.setState({
-      dataSource: this.state.DataTable.content.slice(min, max),
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'universal2/data',
+      payload: {
+        ...this.state.pagingConfig,
+        table: 'getApplicationPage',
+        start: current,
+        length: pageSize,
+      },
     });
   };
 
@@ -175,23 +234,17 @@ class Requests extends Component {
 
   resetshow() {
     this.setState({
-      ModalData: {
-        id: null,
-        key: null,
-        value: null,
-      },
+      /* ModalData: {
+         id: null,
+         key: null,
+         value: null,
+       },*/
       ShowModal: false,
     });
   }
 
   refreshTable = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'universal2/data',
-      payload: {
-        table: 'requests',
-      },
-    });
+    this.loadMainGridData();
   };
 
   clearfile = () => {
@@ -241,14 +294,33 @@ class Requests extends Component {
     const dateFormat = 'DD.MM.YYYY';
     let { columns, dataStore } = this.props.universal2;
 
+    columns = [{
+      'title': 'Номер заявки',
+      'width': 100,
+      'isVisible': true,
+      'dataIndex': 'appNumber',
+    }, { 'title': 'Дата заявки', 'isVisible': true, 'dataIndex': 'appDate' }, {
+      'title': 'Номер платежного поручения',
+      'isVisible': true,
+      'dataIndex': 'payOrderNum',
+    }, { 'title': 'Дата платежного поручения', 'dataIndex': 'payOrderDate', 'isVisible': true }, {
+      'title': 'Референс',
+      'dataIndex': 'reference',
+      'isVisible': true,
+    }, { 'title': 'КНП', 'dataIndex': 'dknpId.nameRu', 'isVisible': true }, {
+      'title': 'Возвратов',
+      'dataIndex': 'refundCount',
+    }];
+
     let actionColumns = [];
     let propColumns = [];
+
 
     columns.forEach((column) => {
       if (['receiptAppdateToFsms'].indexOf(column.dataIndex) !== -1) {
         actionColumns.push({
           ...column,
-          order:2,
+          order: 2,
           render: (text, row) => <a
             onClick={(e) => {
               this.setState({
@@ -267,7 +339,7 @@ class Requests extends Component {
       else if (['appEndDate'].indexOf(column.dataIndex) !== -1) {
         actionColumns.push({
           ...column,
-          order:3,
+          order: 3,
           render: (text, row) => <a
             onClick={(e) => {
               this.setState({
@@ -321,8 +393,11 @@ class Requests extends Component {
               >
                 <GridFilter
                   clearFilter={() => {
+                    this.clearFilter();
                   }}
-                  applyFilter={() => {
+                  applyFilter={(filters) => {
+                    console.log(filters);
+                    //this.setFilter(filters);
                   }}
                   filterForm={this.state.filterForm}
                   dateFormat={dateFormat}
@@ -342,15 +417,15 @@ class Requests extends Component {
                   actionColumns={this.state.columns.concat(actionColumns)}
                   columns={propColumns}
                   sorted={true}
-                  showTotal={false}
+                  showTotal={true}
                   dataSource={{
-                    total: 50,
-                    pageSize: 10,
-                    page: 1,
-                    data: dataStore,
+                    total: dataStore.totalElements,
+                    pageSize: this.state.pagingConfig.length,
+                    page: this.state.pagingConfig.start + 1,
+                    data: dataStore.content,
                   }}
                   onShowSizeChange={(pageNumber, pageSize) => {
-                    console.log(pageNumber, pageSize);
+                    this.onShowSizeChange(pageNumber, pageSize);
                   }}
                   onSelectCell={(cellIndex, cell) => {
 

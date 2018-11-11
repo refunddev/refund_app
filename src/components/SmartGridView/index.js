@@ -63,6 +63,7 @@ const ResizeableTitle = (props) => {
 
 const SmartColumnsSelect = props => {
 
+
   const menu = (
     <Menu>
       <Menu.Item>
@@ -112,7 +113,8 @@ const SmartGridHeader = props => {
                                  value={props.columns}/>}
 
             {props.showTotal &&
-            <div className={styles.total_label}>{formatMessage({ id: 'app.table.column.total' })}: 2548462</div>}
+            <div
+              className={styles.total_label}>{formatMessage({ id: 'app.table.column.total' })}: {props.dataSource.total}</div>}
           </div>
         </div>
 
@@ -124,8 +126,6 @@ const SmartGridHeader = props => {
 class BodyCell extends Component {
 
   render() {
-
-    //console.log(this);
 
     return (
       <td  {...this.props}/>
@@ -256,14 +256,14 @@ export default class SmartGridView extends Component {
 
     // to do order column with actionColumns
     if (this.props.actionColumns && this.props.actionColumns.length > 0) {
-        this.props.actionColumns.filter(x => x.isVisible).map((actcol)=>{
-          if(actcol.order!=null){
-            tableOptions.columns.splice(actcol.order, 0, actcol);
-            }
-          else {
-            tableOptions.columns.splice(1, 0, actcol);
-            }
-        })
+      this.props.actionColumns.filter(x => x.isVisible).map((actcol) => {
+        if (actcol.order != null) {
+          tableOptions.columns.splice(actcol.order, 0, actcol);
+        }
+        else {
+          tableOptions.columns.splice(1, 0, actcol);
+        }
+      });
       //tableOptions.columns = this.props.actionColumns.filter(x => x.isVisible).concat(tableOptions.columns);
     }
 
@@ -329,8 +329,10 @@ export default class SmartGridView extends Component {
       <Table {...tableOptions}/>
       <br/>
       <Pagination
+        defaultPageSize={15}
         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
         showSizeChanger
+        pageSizeOptions={['15', '30', '40', '50', '100']}
         onShowSizeChange={(page, pageSize) => {
           this.props.onShowSizeChange(page - 1, pageSize);
         }}

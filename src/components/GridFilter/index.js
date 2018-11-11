@@ -138,6 +138,13 @@ export default class GridFilter extends Component {
           return;
         }
 
+        /// to do is null  prefix
+        if (['betweenDate'].indexOf(fields[field].type) !== -1) {
+          filterData[field + 'Start'] = fields[field].disabled ? null : formFilters[field][0];
+          filterData[field + 'End'] = fields[field].disabled ? null : formFilters[field][1];
+          return;
+        }
+
         filterData[field] = fields[field].disabled ? null : formFilters[field];
       }
     });
@@ -238,7 +245,7 @@ export default class GridFilter extends Component {
             }}
           >
             {references[filterItem.name] && references[filterItem.name].map((item) => {
-              return <Select.Option key={item.id}>{item.nameRu}</Select.Option>;
+              return <Select.Option key={item.id}>{item.code} - {item.nameRu}</Select.Option>;
             })}
           </Select>
         </div>);

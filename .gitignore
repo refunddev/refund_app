@@ -7,7 +7,6 @@
 **/node_modules
 # roadhog-api-doc ignore
 /src/utils/request-temp.js
-/config/config.js
 _roadhog-api-doc
 
 # production

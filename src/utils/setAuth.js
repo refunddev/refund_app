@@ -13,16 +13,17 @@ export default function(isToken = false) {
     localStorage.removeItem('antd-pro-authority');
     setAuthority('guest');
     reloadAuthorized();
-    location.replace("user/login");
+    location.replace('/user/login');
   };
-
 
   // if token and isToken
   if (token && isToken) {
 
     const decoded = jwtdecode(token);
 
-    return decoded.exp > Date.now() / 1000 ? token : false;
+    //return decoded.exp > Date.now() / 1000 ? token : false;
+
+    return token;
   }
 
   // if token expired
@@ -30,9 +31,9 @@ export default function(isToken = false) {
 
     const decoded = jwtdecode(token);
 
-    if (!(decoded.exp > Date.now() / 1000)) {
-      destroySession();
-    }
+    /*if (!(decoded.exp > Date.now() / 1000)) {
+     destroySession();
+    }*/
   }
 
   // if auth antd-pro-authority

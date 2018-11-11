@@ -106,9 +106,10 @@ export default function request(url, option) {
 
   const authToken = setAuth(true);
 
+
   if (authToken) {
     newOptions.headers = {
-      Authorization: authToken,
+      Authorization: 'Bearer ' + authToken,
       ...newOptions.headers,
     };
   } else {
@@ -150,9 +151,11 @@ export default function request(url, option) {
       if (status === 401) {
         // @HACK
         /* eslint-disable no-underscore-dangle */
-        /*window.g_app._store.dispatch({
-          type: 'login/logout',
-        });*/
+
+        window.g_app._store.dispatch({
+          type: 'login/refreshToken',
+        });
+
         return;
       }
       // environment should not be used

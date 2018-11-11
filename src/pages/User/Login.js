@@ -41,6 +41,7 @@ class LoginPage extends Component {
 
   handleSubmit = (err, values) => {
     const { type } = this.state;
+
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
@@ -77,9 +78,9 @@ class LoginPage extends Component {
           }}
         >
           <br/>
-          <UserName name="email" placeholder={formatMessage({ id: 'system.form.login' })}/>
+          <UserName name="Login" placeholder={formatMessage({ id: 'system.form.login' })}/>
           <Password
-            name="password"
+            name="Password"
             placeholder={formatMessage({ id: 'system.form.password' })}
             onPressEnter={() => this.loginForm.validateFields(this.handleSubmit)}
           />

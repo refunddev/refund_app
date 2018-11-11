@@ -1,6 +1,6 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { LoginUser } from '@/services/api';
+import { LoginUser, RefreshToken } from '@/services/api';
 import { setAuthority } from '@/utils/authority';
 import { getPageQuery } from '@/utils/utils';
 import { reloadAuthorized } from '@/utils/Authorized';
@@ -14,14 +14,18 @@ export default {
   },
 
   effects: {
-    *login({ payload }, { call, put }) {
+    * login({ payload }, { call, put }) {
       const response = yield call(LoginUser, payload);
       // Login successfully
 
-      if (response && response.status === 'ok') {
+      if (response) {
+
         yield put({
           type: 'changeLoginStatus',
-          payload: response,
+          payload: {
+            ...response,
+            currentAuthority: ['ADMIN'],
+          },
         });
 
         localStorage.setItem('token', response.token);
@@ -50,11 +54,16 @@ export default {
       }
     },
 
-    *getCaptcha({ payload }, { call }) {
+    * getCaptcha({ payload }, { call }) {
       yield call(getFakeCaptcha, payload);
     },
 
-    *logout(_, { put }) {
+    * refreshToken({ payload }, { call }) {
+      yield call(RefreshToken, payload);
+    },
+
+    * logout(_, { put }) {
+      localStorage.removeItem('token');
       yield put({
         type: 'changeLoginStatus',
         payload: {
@@ -69,7 +78,7 @@ export default {
           search: stringify({
             redirect: window.location.href,
           }),
-        })
+        }),
       );
     },
   },
